@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+  #content
+    h3.title=action.text + ' Category' 
+    .row
+      .col-md-2.col-md-offset-5
+        form(method='POST' action=action.url)
+          div.form-group.required
+            label(for='name') Name
+            input.form-control(type='text' id='name' placeholder='Name' name='name' required value=body === null ? (category ? category.name : '' ) : body.name)
+          button.btn.btn-primary(type='submit')=action.text
+
+      #confirm.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+        .modal-dialog
+          .modal-content
+            .modal-header
+              button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+              h4#myModalLabel.modal-title Confirm Delete
+            .modal-body
+              p You are about to delete this image, this procedure is irreversible.
+              p Do you want to proceed?
+            .modal-footer
+              button.btn.btn-default(type="button" data-dismiss="modal") Cancel
+              a#delete.btn.btn-danger.btn-ok Delete

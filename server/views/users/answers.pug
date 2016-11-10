@@ -1,0 +1,44 @@
+extends ../layout
+
+block content
+  #content
+    h3.title My Answers
+
+    .row
+      .col-md-6.col-md-offset-3
+        if answers.length > 0
+          each answer, index in answers
+            a
+            p.answer(class=index == answers.length - 1 ? 'last' : '')
+              if currentUser
+                span.votes
+                  a.up(href=`/thread/answer/${answer._id}/vote/up`)
+                  span.totalVotes= answer.totalVotes || 0
+                  a.down(href=`/thread/answer/${answer._id}/vote/down`)
+              span.text= answer.text
+            p.answered answered #{dateFormat(answer.createdAt, 'customFormat')}
+            p.author= answer.createdBy.fullname()
+        else 
+          p.no-answers There are no answers
+
+    if pages > 1
+      nav
+        ul.pagination
+          li.page-item(class=page === 1 ? 'disabled' : '')
+            a.page-link(href=page > 1 ? `/users/${userId}/answers?page=${page - 1}` : '#' tabindex='-1' aria-label='Previous')
+              span(aria-hidden='true') &laquo;
+              span.sr-only Previous
+      
+          - for(let i = 1; i <= pages; i++)
+            if i === page
+              li(class='page-item active')
+                a.page-link(href=`/users/${userId}/answers?page=${i}`)= i
+                  span.sr-only (current)
+            else
+              li.page-item
+                a.page-link(href=`/users/${userId}/answers?page=${i}`)= i
+
+          li.page-item(class=page === pages ? 'disabled' : '')
+            a.page-link(href=page < pages ? `/users/${userId}/answers?page=${page + 1}` : '#'  aria-label='Next')
+              span(aria-hidden='true') &raquo;
+              span.sr-only Next

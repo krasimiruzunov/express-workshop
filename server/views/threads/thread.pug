@@ -1,0 +1,30 @@
+extends ../layout
+
+block content
+  #content
+    h3.title=action.text + ' Thread' 
+    .row
+      .col-md-4.col-md-offset-4
+        form(method='POST' action=action.url)
+          div.form-group.required
+            label(for='title') Title
+            input.form-control(type='text' id='title' placeholder='Title' name='title' required value=body === null ? (thread ? thread.title : '' ) : body.title)
+          div.form-group.required
+            label(for='description') Description
+            textarea.form-control(rows=5 id='description' placeholder='Description' name='description' required) #{body === null ? (thread ? thread.description : '' ) : body.description}
+          div.form-group.required
+            label(for='category') Category
+            select.form-control(id="category", name="category")
+              option(value="") Select Category
+              each category in categories
+                if body === null ? (thread && (thread.category._id.toString() == category._id.toString())) : (body.category == category._id.toString())
+                  option(value=category._id selected=true) #{category.name}
+                else
+                  option(value=category._id ) #{category.name}
+          button.btn.btn-primary(type='submit')=action.text
+
+          if (errors)
+            .thread-errors
+              .error
+                each error in errors
+                  p #{error.msg}

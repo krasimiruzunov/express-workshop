@@ -1,0 +1,71 @@
+extends ../layout
+
+block content
+  #content
+    h3.title Threads for category 
+      span.categoryName= categoryName
+
+    .row
+      .col-md-6.col-md-offset-3
+        if threads
+          each thread, index in threads  
+            .threads(class=index == threads.length - 1 ? 'last' : '' href=`/thread/${thread._id}/details`)
+              .first
+                p.votes
+                  span #{thread.totalVotes || 0}
+                  span votes
+                p.answers
+                  span #{thread.totalAnswers || 0}
+                  span answers
+                p.views
+                  span #{thread.totalViews || 0}
+                  span views
+                p.title
+                  a(href=`/thread/${thread._id}/${thread.title}`) #{thread.title.length > 100 ? `${thread.title.substring(0, 100)} ...` : thread.title}
+                if currentUser && currentUser.roles.indexOf('Admin') > -1
+                  .actions
+                    a.edit(href=`/thread/${thread._id}/edit`) Edit
+                    |  | 
+                    a.delete(href=`/thread/${thread._id}/delete`) Delete
+              .second
+                p.author #{thread.createdBy.fullname()}
+                p.category
+                  a(href=`/category/${thread.category.name}/threads`) #{thread.category.name}
+                p.asked #{dateFormat(thread.createdAt, 'customFormat')}
+        else 
+          p.no-threads There are no threads
+
+    if pages > 1
+      nav
+        ul.pagination
+          li.page-item(class=page === 1 ? 'disabled' : '')
+            a.page-link(href=page > 1 ? `/categories/${catehoryName}?page=${page - 1}` : '#' tabindex='-1' aria-label='Previous')
+              span(aria-hidden='true') &laquo;
+              span.sr-only Previous
+      
+          - for(let i = 1; i <= pages; i++)
+            if i === page
+              li(class='page-item active')
+                a.page-link(href=`/categories/${catehoryName}?page=${i}`)= i
+                  span.sr-only (current)
+            else
+              li.page-item
+                a.page-link(href=`/categories/${catehoryName}?page=${i}`)= i
+
+          li.page-item(class=page === pages ? 'disabled' : '')
+            a.page-link(href=page < pages ? `/categories/${catehoryName}?page=${page + 1}` : '#'  aria-label='Next')
+              span(aria-hidden='true') &raquo;
+              span.sr-only Next
+
+    #confirm.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+            h4#myModalLabel.modal-title Confirm Delete
+          .modal-body
+            p You are about to delete this thread, this procedure is irreversible.
+            p Do you want to proceed?
+          .modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Cancel
+            a#delete.btn.btn-danger.btn-ok Delete

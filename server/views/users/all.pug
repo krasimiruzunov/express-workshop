@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  #content
+    h3.title= Users 
+    .row
+      .col-md-6.col-md-offset-3
+        form(method='POST' action='/users/block')
+          div.form-group.required
+            label(for='users') Users
+            select.form-control(id="users", name="users" multiple)
+              each user in users
+                if body && body.users && body.users.indexOf(user._id) > -1
+                  option(value=user._id selected) #{user.fullname()}
+                else
+                  option(value=user._id) #{user.fullname()}
+          button.btn.btn-primary(type='submit') Block Users
+
+        p.title Blocked users
+        each blockedUser, index in blockedUsers  
+          .admins(class=index == blockedUsers.length - 1 ? 'last' : '')
+            .admin= blockedUser.fullname()
+            .actions
+              a.delete.admin(href="/users/" + blockedUser._id + "/unblock") Unblock
+
+      #confirm.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+        .modal-dialog
+          .modal-content
+            .modal-header
+              button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+              h4#myModalLabel.modal-title Confirm Delete
+            .modal-body
+              p You are about to unblock this User.
+              p Do you want to proceed?
+            .modal-footer
+              button.btn.btn-default(type="button" data-dismiss="modal") Cancel
+              a#delete.btn.btn-danger.btn-ok Unblock

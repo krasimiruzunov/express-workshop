@@ -1,0 +1,69 @@
+extends ../layout
+
+block content
+  #content
+    h3.title Categories
+    .create-category
+      a(href='/category/create') Create Category
+      select.form-control(id="limit" models="categories")
+        each limit in limits
+          if limit === categoriesLimit
+            option(value=limit selected=true)= limit
+          else
+            option(value=limit)= limit
+    .categories.header(class=categories.length == 0 ? 'last' : '')
+      p#name(class=field === 'name' ? direction : '') Name
+      p#totalThreads(class=field === 'totalThreads' ? direction : '') Total threads
+      p#createdBy(class=field === 'createdBy' ? direction : '') Created By
+      if currentUser
+        p.actions Actions
+
+    if categories.length > 0
+      each category, index in categories
+        .categories(class=index == categories.length - 1 ? 'last' : '')
+          p #{category.name}
+          p #{category.totalThreads || 0}
+          p #{category.createdBy.fullname()}
+          if currentUser
+            p.actions
+              if currentUser.roles.indexOf('Admin') > -1 || category.createdBy._id.toString() === currentUser._id.toString()
+                a(href="/category/" + category._id + "/edit") Edit
+                |  | 
+                a.delete(href="/category/" + category._id + "/delete") Delete
+    else
+      p.no-categories There are no categories
+      
+    if pages > 1
+      nav
+        ul.pagination
+          li.page-item(class=page === 1 ? 'disabled' : '')
+            a.page-link(href=page > 1 ? '/categories?page=' + (page - 1) : '#' tabindex='-1' aria-label='Previous')
+              span(aria-hidden='true') &laquo;
+              span.sr-only Previous
+      
+          - for(let i = 1; i <= pages; i++)
+            if i === page
+              li(class='page-item active')
+                a.page-link(href='/categories?page=' + i)= i
+                  span.sr-only (current)
+            else
+              li.page-item
+                a.page-link(href='/categories?page=' + i)= i
+
+          li.page-item(class=page === pages ? 'disabled' : '')
+            a.page-link(href=page < pages ? '/categories?page=' + (page + 1) : '#'  aria-label='Next')
+              span(aria-hidden='true') &raquo;
+              span.sr-only Next
+
+    #confirm.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+            h4#myModalLabel.modal-title Confirm Delete
+          .modal-body
+            p You are about to delete this category, this procedure is irreversible.
+            p Do you want to proceed?
+          .modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Cancel
+            a#delete.btn.btn-danger.btn-ok Delete

@@ -1,0 +1,18 @@
+extends ../layout
+
+block content
+  #content
+    h3.title Update Answer 
+    .row
+      .col-md-4.col-md-offset-4
+        form(method='POST' action=`/answer/${answer._id}/update`)
+          div.form-group.required
+            label(for='answer') Answer
+            textarea.form-control(rows=5 id='answer' name='answer' required) #{body === null ? (answer ? answer.text : '' ) : body.answer}
+          button.btn.btn-primary(type='submit') Update
+
+          if (errors)
+            .thread-errors
+              .error
+                each error in errors
+                  p #{error.msg}

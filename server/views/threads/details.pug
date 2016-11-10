@@ -1,0 +1,71 @@
+extends ../layout
+
+block content
+  #content
+    .row
+      .col-md-4.col-md-offset-4
+        p.title= thread.title
+        p.details
+          span.asked asked  #{dateFormat(thread.createdAt, 'customFormat')}
+          span.viewed viewed #{thread.totalViews || 0} times
+        p.thread
+          span.votes
+            a.up(href=`/thread/${thread._id}/vote/up`)
+            span.totalVotes= thread.totalVotes || 0
+            a.down(href=`/thread/${thread._id}/vote/down`)
+          span.description= thread.description
+        p.author #{thread.createdBy.fullname()}
+
+        #answers
+          p.title= `${thread.totalAnswers || 0} Answers`
+          each answer in thread.answers
+            .answer
+              p.votes
+                a.up(href=`/answer/${answer._id}/vote/up`)
+                span.totalVotes= answer.totalVotes || 0
+                a.down(href=`/answer/${answer._id}/vote/down`)
+              p.text
+                if currentUser && currentUser.roles.indexOf('Admin') > -1
+                  span.actions
+                    a.edit(href=`/answer/${answer._id}/edit`) Edit
+                    |  | 
+                    a.delete(href=`/answer/${answer._id}/delete`) Delete
+                span= answer.text
+            p.answered answered #{dateFormat(answer.createdAt, 'customFormat')}
+            p.author= answer.createdBy.fullname()
+            p.comments
+              each comment in answer.comments
+                span.comment #{comment.text} - #{comment.createdBy.fullname()} #{dateFormat(comment.createdAt, 'customFormat')}
+            if currentUser && !currentUser.isBlocked
+              p.add-comment
+                a(href='#') add a comment
+                form.comment-form(method='POST' action=`/answer/${answer._id}/comment`)
+                  div.form-group.required
+                    input.form-control(id='comment' placeholder='Comment' name='comment' required value=body === null ? ''  : body.comment)
+                  button.btn.btn-primary(type='submit') Add Comment
+
+
+        if currentUser && !currentUser.isBlocked
+          form(method='POST' action=`/thread/${thread._id}/answer` id='answer-form')
+              div.form-group.required
+                textarea.form-control(rows=5 id='answer' placeholder='Answer' name='answer' required) #{body === null ? ''  : body.answer}
+              button.btn.btn-primary(type='submit') Add Answer
+          
+          if (errors)
+            .answer-errors
+              .error
+                each error in errors
+                  p #{error.msg}
+
+    #confirm.modal.fade(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type="button" data-dismiss="modal" aria-hidden="true") &times;
+            h4#myModalLabel.modal-title Confirm Delete
+          .modal-body
+            p You are about to delete this answer, this procedure is irreversible.
+            p Do you want to proceed?
+          .modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Cancel
+            a#delete.btn.btn-danger.btn-ok Delete

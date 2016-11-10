@@ -1,0 +1,18 @@
+
+extends ../layout
+
+block content
+  #content
+    h3.title My Profile
+
+    .row
+      .col-md-6.col-md-offset-3
+        .profile
+          p Firstname: #{user.firstName}
+          p Lastname: #{user.lastName}
+          p Username: #{user.username}
+          p
+            a(href=`/users/${user._id}/threads`) My Threads
+          p
+            a(href=`/users/${user._id}/answers`) My Answers
+
